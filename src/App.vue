@@ -352,6 +352,7 @@ function calcPlanes() {
     <span class="ml-4 font-bold">H<sub>0</sub>:</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2"
       type="number" v-model="mainStore.h0" />
     <hr class="my-2" />
+    <span class="font-bold">Reihen-Einrückung:</span>
     <input v-for="i in mainStore.startingLengths.length + 1" :key="i" :placeholder="i.toString()"
       class="ml-2 w-32 p-1 rounded-md text-black px-2" type="number" v-model="mainStore.startingLengths[i - 1]" />
     <button class="ml-2 p-1 rounded-md bg-red-500 hover:bg-red-700 text-white px-2"
