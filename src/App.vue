@@ -325,14 +325,7 @@ function calcPlanes() {
   </header>
 
   <main class="m-4">
-    <span class="font-bold">Dielengröße (BxH):</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text"
-      v-model="mainStore.plateSize[0]" /><span class="ml-2 font-bold">x</span>
-    <input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text" v-model="mainStore.plateSize[1]" />
-    <button class="ml-2 p-1 rounded-md bg-blue-500 hover:bg-blue-700 text-white px-2" @click="calcPlanes">Berechne
-      Dielen</button>
-    <span class="ml-4 font-bold">H<sub>0</sub>:</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2"
-      type="number" v-model="mainStore.h0" />
-    <hr class="my-2" />
+
     <div v-for="index in mainStore.polygon.length" :key="index">
       <span class="font-bold">Ecke {{ index.toString().padStart(2, "0") }}:&nbsp;&nbsp;</span>
       <input class="ml-2 my-1 w-32 p-1 rounded-md text-black px-2 bg-gray-400" type="text"
@@ -350,6 +343,14 @@ function calcPlanes() {
       Vertex</button>
     <button class="ml-2 p-1 rounded-md bg-green-500 hover:bg-green-700 text-white px-2 " @click="updateCanvas">Update
       Vertices</button>
+    <hr class="my-2" />
+    <span class="font-bold">Dielengröße (BxH):</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text"
+      v-model="mainStore.plateSize[0]" /><span class="ml-2 font-bold">x</span>
+    <input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text" v-model="mainStore.plateSize[1]" />
+    <button class="ml-2 p-1 rounded-md bg-blue-500 hover:bg-blue-700 text-white px-2" @click="calcPlanes">Berechne
+      Dielen</button>
+    <span class="ml-4 font-bold">H<sub>0</sub>:</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2"
+      type="number" v-model="mainStore.h0" />
     <hr class="my-2" />
     <input v-for="i in mainStore.startingLengths.length + 1" :key="i" :placeholder="i.toString()"
       class="ml-2 w-32 p-1 rounded-md text-black px-2" type="number" v-model="mainStore.startingLengths[i - 1]" />
