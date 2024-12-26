@@ -325,7 +325,7 @@ function calcPlanes() {
   </header>
 
   <main class="m-4">
-    <span class="font-bold">Dielengröße:</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text"
+    <span class="font-bold">Dielengröße (BxH):</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text"
       v-model="mainStore.plateSize[0]" /><span class="ml-2 font-bold">x</span>
     <input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text" v-model="mainStore.plateSize[1]" />
     <button class="ml-2 p-1 rounded-md bg-blue-500 hover:bg-blue-700 text-white px-2" @click="calcPlanes">Berechne
