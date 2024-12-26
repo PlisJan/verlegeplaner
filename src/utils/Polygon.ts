@@ -86,3 +86,44 @@ export function pointInPolygon(polygon: [number, number][], point: [number, numb
 
   return inside
 }
+
+export function nextBorderInterceptionToRight(
+  polygon: [number, number][],
+  point: [number, number],
+): number {
+  const x = point[0]
+  const y = point[1]
+  let min = Number.POSITIVE_INFINITY
+  for (let i = 0; i < polygon.length; i++) {
+    const [x1, y1] = polygon[i]
+    const [x2, y2] = polygon[(i + 1) % polygon.length]
+
+    if ((y1 <= y && y2 >= y) || (y1 >= y && y2 <= y)) {
+      const xIntercept = x1 + ((x2 - x1) * (y - y1)) / (y2 - y1)
+      if (xIntercept > x) {
+        min = Math.min(min, xIntercept)
+      }
+    }
+  }
+  return min
+}
+export function nextBorderInterceptionToLeft(
+  polygon: [number, number][],
+  point: [number, number],
+): number {
+  const x = point[0]
+  const y = point[1]
+  let max = Number.NEGATIVE_INFINITY
+  for (let i = 0; i < polygon.length; i++) {
+    const [x1, y1] = polygon[i]
+    const [x2, y2] = polygon[(i + 1) % polygon.length]
+
+    if ((y1 <= y && y2 >= y) || (y1 >= y && y2 <= y)) {
+      const xIntercept = x1 + ((x2 - x1) * (y - y1)) / (y2 - y1)
+      if (xIntercept < x) {
+        max = Math.max(max, xIntercept)
+      }
+    }
+  }
+  return max
+}

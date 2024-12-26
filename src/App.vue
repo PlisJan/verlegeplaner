@@ -3,7 +3,7 @@ import { onMounted, ref, watch, type Ref } from 'vue';
 
 import * as fabric from 'fabric';
 import { useMainStore } from './stores/mainStore';
-import { getLeftMostPointAtGivenHeight, getRightMostPointAtGivenHeight, pointInPolygon } from './utils/Polygon';
+import { getLeftMostPointAtGivenHeight, getRightMostPointAtGivenHeight, nextBorderInterceptionToLeft, nextBorderInterceptionToRight, pointInPolygon } from './utils/Polygon';
 
 const mainStore = useMainStore()
 
@@ -188,6 +188,45 @@ function createAllMeasurements() {
 }
 
 function createPlane(width: number, height: number, position: fabric.Point) {
+  const bottomLeftInPolygon = pointInPolygon(mainStore.polygon, [position.x, position.y])
+  const bottomRightInPolygon = pointInPolygon(mainStore.polygon, [position.x + width, position.y])
+  const topLeftInPolygon = pointInPolygon(mainStore.polygon, [position.x, position.y + height])
+  const topRightInPolygon = pointInPolygon(mainStore.polygon, [position.x + width, position.y + height])
+
+  // All points not in polygon
+  if (!bottomLeftInPolygon && !bottomRightInPolygon && !topLeftInPolygon && !topRightInPolygon) return;
+
+
+  // Shrink to right
+  if (!bottomRightInPolygon && !topRightInPolygon) {
+    let topBorderInterception = nextBorderInterceptionToRight(mainStore.polygon, [position.x, position.y + height]) - position.x
+    let bottomBorderInterception = nextBorderInterceptionToRight(mainStore.polygon, [position.x, position.y]) - position.x
+    if (topBorderInterception > mainStore.plateSize[0]) {
+      topBorderInterception = Number.NEGATIVE_INFINITY
+    }
+    if (bottomBorderInterception > mainStore.plateSize[0]) {
+      bottomBorderInterception = Number.NEGATIVE_INFINITY
+    }
+
+    width = Math.max(topBorderInterception, bottomBorderInterception)
+  }
+
+  // Shrink to left
+  if (!bottomLeftInPolygon && !topLeftInPolygon) {
+    let topBorderInterception = nextBorderInterceptionToLeft(mainStore.polygon, [position.x + width, position.y + height]) - position.x
+    let bottomBorderInterception = nextBorderInterceptionToLeft(mainStore.polygon, [position.x + width, position.y]) - position.x
+    if (topBorderInterception < -mainStore.plateSize[0]) {
+      topBorderInterception = Number.POSITIVE_INFINITY
+    }
+    if (bottomBorderInterception < -mainStore.plateSize[0]) {
+      bottomBorderInterception = Number.POSITIVE_INFINITY
+    }
+
+    const delta = Math.min(topBorderInterception, bottomBorderInterception)
+    width -= delta
+    position.x += delta
+  }
+
   const plane = new fabric.Rect({
     width: width * 1,
     height: height * 1,
@@ -286,22 +325,31 @@ function calcPlanes() {
   </header>
 
   <main class="m-4">
-    <span class="font-bold">Plattengröße:</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text"
+    <span class="font-bold">Dielengröße:</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text"
       v-model="mainStore.plateSize[0]" /><span class="ml-2 font-bold">x</span>
     <input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text" v-model="mainStore.plateSize[1]" />
     <button class="ml-2 p-1 rounded-md bg-blue-500 hover:bg-blue-700 text-white px-2" @click="calcPlanes">Berechne
-      Platten</button>
-    <span class="ml-4 font-bold">H_0:</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="number"
-      v-model="mainStore.h0" />
+      Dielen</button>
+    <span class="ml-4 font-bold">H<sub>0</sub>:</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2"
+      type="number" v-model="mainStore.h0" />
     <hr class="my-2" />
-    <div v-for="val, index in mainStore.polygon" :key="index">Ecke ({{ val[0] }} | {{ val[1] }})</div>
-    <input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text" v-model="newVertex[0]" />
+    <div v-for="index in mainStore.polygon.length" :key="index">
+      <span class="font-bold">Ecke {{ index.toString().padStart(2, "0") }}:&nbsp;&nbsp;</span>
+      <input class="ml-2 my-1 w-32 p-1 rounded-md text-black px-2 bg-gray-400" type="text"
+        v-model="mainStore.polygon[index - 1][0]" />
+      <input class="ml-2 my-1 w-32 p-1 rounded-md text-black px-2 bg-gray-400" type="text"
+        v-model="mainStore.polygon[index - 1][1]" />
+    </div>
+    <span class="font-bold">Ecke Neu:</span><input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text"
+      v-model="newVertex[0]" />
     <input class="ml-2 w-32 p-1 rounded-md text-black px-2" type="text" v-model="newVertex[1]" />
     <button type="submit" tabindex="1" class="ml-2 p-1 rounded-md bg-blue-500 hover:bg-blue-700 text-white px-2 "
       @click="addVertex">Add
       Vertex</button>
     <button class="ml-2 p-1 rounded-md bg-red-500 hover:bg-red-700 text-white px-2" @click="popVertex">Delete last
       Vertex</button>
+    <button class="ml-2 p-1 rounded-md bg-green-500 hover:bg-green-700 text-white px-2 " @click="updateCanvas">Update
+      Vertices</button>
     <hr class="my-2" />
     <input v-for="i in mainStore.startingLengths.length + 1" :key="i" :placeholder="i.toString()"
       class="ml-2 w-32 p-1 rounded-md text-black px-2" type="number" v-model="mainStore.startingLengths[i - 1]" />
@@ -309,7 +357,7 @@ function calcPlanes() {
       @click="mainStore.startingLengths.pop()">Remove
       last</button>
     <hr class="my-2" />
-    <div class="w-full p-2">
+    <div class="w-full p-2 flex gap-2">
       <button class=" p-1 rounded-md bg-green-500 hover:bg-green-700 text-white px-2 w-1/2"
         @click="download">Download</button>
       <button class="p-1 rounded-md bg-green-500 hover:bg-green-700 text-white px-2 w-1/2"
