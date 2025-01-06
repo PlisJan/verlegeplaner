@@ -4,12 +4,12 @@ import { computed, ref } from 'vue'
 import { area } from '@/utils/Polygon'
 import { createPlane } from '@/utils/Plane'
 import { z } from 'zod'
-import { Point } from '@/utils/Point'
+import { Point, type XY } from '@/utils/Point'
 
 export const useMainStore = defineStore(
   'mainStore',
   () => {
-    const points = ref<Point[]>([new Point(undefined, undefined)])
+    const points = ref<XY[]>([new Point(undefined, undefined)])
     const canvas = ref<fabric.StaticCanvas | null>(null)
     const pg = ref<fabric.Polygon | null>(null)
     const elementScale = ref<number>(1)
@@ -49,7 +49,7 @@ export const useMainStore = defineStore(
       if (canvas.value == null) return
       canvas.value.clear()
       pg.value = new fabric.Polygon(
-        points.value.slice(0, points.value.length - 1).map((p) => p.toFabricPoint()),
+        points.value.slice(0, points.value.length - 1).map((p) => new Point(p).toFabricPoint()),
         {
           fill: '#ced8e4',
           stroke: 'black',
@@ -103,9 +103,12 @@ export const useMainStore = defineStore(
       }
     }
 
-    const polygonArea = computed(() =>
-      area(points.value.slice(0, points.value.length - 1).map((p) => p.toFabricPoint())),
-    )
+    const polygonArea = computed(() => {
+      console.log(points.value)
+      return area(
+        points.value.slice(0, points.value.length - 1).map((p) => new Point(p).toFabricPoint()),
+      )
+    })
 
     return {
       points,
