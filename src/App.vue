@@ -6,6 +6,7 @@ import { useMainStore } from './stores/main';
 import FileUploadButton from './components/FileUploadButton.vue';
 import { z } from 'zod';
 import { Point } from './utils/Point';
+import ParsedInput from './components/ParsedInput.vue';
 
 
 
@@ -87,30 +88,29 @@ onMounted(() => {
       <button class="w-40 bg-primary text-white rounded-md p-2 m-4 mb-1" @click="downloadPoints">Punkte
         herunterladen</button>
       <FileUploadButton @update="updateValues">Punkte hochladen</FileUploadButton>
-      <h2 class="w-48 text-center font-bold text-lg">Area: {{ mainStore.polygonArea }}</h2>
+      <h2 class="w-48 text-center font-bold text-lg">Fläche: {{ mainStore.polygonArea }}</h2>
     </div>
     <div class="flex-grow flex flex-col">
       <h1 class="w-full text-center font-extrabold text-xl mb-8">Dielen</h1>
       <div>
         <label class="text-lg">Dielendimensionen:</label>
-        <input type="number"
-          class="bg-[#282828] rounded-l-md border border-r-[0.5px] ml-4 p-2 w-20 text-center focus:outline-none focus:border-green-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          placeholder="Breite" v-model="mainStore.planeDimensions[0]" />
-        <input type="number"
-          class="bg-[#282828] rounded-r-md border border-l-[0.5px] mr-4 p-2 w-20 text-center focus:outline-none focus:border-green-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          placeholder="Höhe" v-model="mainStore.planeDimensions[1]" />
+        <ParsedInput class="w-20 rounded-l-md border-r-[0.5px] ml-4" placeholder="Breite"
+          v-model="mainStore.planeDimensions[0]"
+          :zod-validator="z.preprocess((v) => (v as string).replace(/^(\d+),(\d*)$/, '$1.$2'), z.coerce.number().nullable())" />
+        <ParsedInput class="w-20 rounded-r-md border-l-[0.5px]" placeholder="Höhe"
+          v-model="mainStore.planeDimensions[1]"
+          :zod-validator="z.preprocess((v) => (v as string).replace(/^(\d+),(\d*)$/, '$1.$2'), z.coerce.number().nullable())" />
       </div>
       <div class="my-4">
-        <label class="text-lg">Einrückung X:</label>
-        <input v-for="i in mainStore.indentation.length + 1" :key="i" type="number"
-          class="bg-[#282828] rounded-md border border-r-[0.5px] ml-4 p-2 w-20 text-center focus:outline-none focus:border-green-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          placeholder="x" v-model="mainStore.indentation[i - 1]" />
+        <label class="text-lg mr-4">Einrückung X:</label>
+        <ParsedInput v-for="i in mainStore.indentation.length + 1" :key="i" class="w-20 rounded-md mr-4" placeholder="x"
+          v-model="mainStore.indentation[i - 1]"
+          :zod-validator="z.preprocess((v) => (v as string).replace(/^(\d+),(\d*)$/, '$1.$2'), z.coerce.number().nullable().optional())" />
       </div>
       <div>
         <label class="text-lg">Verschiebung Y:</label>
-        <input type="number"
-          class="bg-[#282828] rounded-md border border-r-[0.5px] ml-4 p-2 w-20 text-center focus:outline-none focus:border-green-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          placeholder="y" v-model="mainStore.indentationY" />
+        <ParsedInput class="w-20 ml-4 rounded-md border-l-[0.5px]" placeholder="y" v-model="mainStore.indentationY"
+          :zod-validator="z.preprocess((v) => (v as string).replace(/^(\d+),(\d*)$/, '$1.$2'), z.coerce.number().nullable())" />
       </div>
       <button class="w-full bg-primary text-white rounded-md p-2 m-4 mb-1" @click="mainStore.addPlane()">Dielen
         berechnen</button>
