@@ -4,11 +4,12 @@ import { computed, ref } from 'vue'
 import { area } from '@/utils/Polygon'
 import { createPlane } from '@/utils/Plane'
 import { z } from 'zod'
+import { Point } from '@/utils/Point'
 
 export const useMainStore = defineStore(
   'mainStore',
   () => {
-    const points = ref<fabric.XY[]>([new fabric.Point(undefined, undefined)])
+    const points = ref<Point[]>([new Point(undefined, undefined)])
     const canvas = ref<fabric.StaticCanvas | null>(null)
     const pg = ref<fabric.Polygon | null>(null)
     const elementScale = ref<number>(1)
@@ -17,7 +18,7 @@ export const useMainStore = defineStore(
     const indentationY = ref<number>(0)
 
     function insertPoint(index: number) {
-      points.value.splice(index, 0, new fabric.Point(0, 0))
+      points.value.splice(index, 0, new Point(0, 0))
       updateCanvas()
     }
     function setPoint(index: number, position: 'x' | 'y', value: string | number) {
@@ -39,7 +40,7 @@ export const useMainStore = defineStore(
         points.value[index].x != undefined &&
         points.value[index].y != undefined
       ) {
-        points.value.push(new fabric.Point(undefined, undefined))
+        points.value.push(new Point(undefined, undefined))
       }
       updateCanvas()
     }
@@ -47,12 +48,15 @@ export const useMainStore = defineStore(
     function updateCanvas() {
       if (canvas.value == null) return
       canvas.value.clear()
-      pg.value = new fabric.Polygon(points.value.slice(0, points.value.length - 1), {
-        fill: '#ced8e4',
-        stroke: 'black',
-        strokeWidth: 5,
-        strokeUniform: true,
-      })
+      pg.value = new fabric.Polygon(
+        points.value.slice(0, points.value.length - 1).map((p) => p.toFabricPoint()),
+        {
+          fill: '#ced8e4',
+          stroke: 'black',
+          strokeWidth: 5,
+          strokeUniform: true,
+        },
+      )
 
       if (pg.value.width! > pg.value.height!) {
         pg.value.scaleToWidth(canvas.value.width * 0.9)
@@ -99,7 +103,9 @@ export const useMainStore = defineStore(
       }
     }
 
-    const polygonArea = computed(() => area(points.value.slice(0, points.value.length - 1)))
+    const polygonArea = computed(() =>
+      area(points.value.slice(0, points.value.length - 1).map((p) => p.toFabricPoint())),
+    )
 
     return {
       points,

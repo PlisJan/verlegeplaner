@@ -5,6 +5,7 @@ import { onMounted, } from 'vue';
 import { useMainStore } from './stores/main';
 import FileUploadButton from './components/FileUploadButton.vue';
 import { z } from 'zod';
+import { Point } from './utils/Point';
 
 
 
@@ -43,7 +44,7 @@ function updateValues(newPoints: unknown) {
 
 
   if (parsedPoints.length == 0) return;
-  mainStore.points = parsedPoints
+  mainStore.points = parsedPoints.map(p => new Point(p.x, p.y))
   mainStore.setPoint(parsedPoints.length - 1, "x", parsedPoints[parsedPoints.length - 1].x)
 }
 
@@ -76,11 +77,11 @@ onMounted(() => {
           <input
             class="bg-[#282828] rounded-l-md border border-r-[0.5px] ml-4 p-2 w-20 text-center focus:outline-none focus:border-green-500"
             placeholder="x" :value="mainStore.points[i - 1].x"
-            @input="(v) => mainStore.setPoint(i - 1, 'x', v.target.value)" />
+            @input="(v) => mainStore.setPoint(i - 1, 'x', (v.target as HTMLInputElement).value)" />
           <input
             class="bg-[#282828] rounded-r-md border border-l-[0.5px] mr-4 p-2 w-20 text-center focus:outline-none focus:border-green-500"
             placeholder="y" :value="mainStore.points[i - 1].y"
-            @input="(v) => mainStore.setPoint(i - 1, 'y', v.target.value)" />
+            @input="(v) => mainStore.setPoint(i - 1, 'y', (v.target as HTMLInputElement).value)" />
         </div>
       </div>
       <button class="w-40 bg-primary text-white rounded-md p-2 m-4 mb-1" @click="downloadPoints">Punkte
