@@ -88,7 +88,9 @@ onMounted(() => {
       <button class="w-40 bg-primary text-white rounded-md p-2 m-4 mb-1" @click="downloadPoints">Punkte
         herunterladen</button>
       <FileUploadButton @update="updateValues">Punkte hochladen</FileUploadButton>
-      <h2 class="w-48 text-center font-bold text-lg">Fläche: {{ mainStore.polygonArea }}</h2>
+      <h2 class="w-48 text-center font-bold text-lg">Fläche:<br> {{ mainStore.polygonArea / 10000
+        }}&thinsp;m<sup>2</sup><br> {{
+          mainStore.polygonArea }}&thinsp;cm<sup>2</sup></h2>
     </div>
     <div class="flex-grow flex flex-col">
       <h1 class="w-full text-center font-extrabold text-xl mb-8">Dielen</h1>
