@@ -240,9 +240,9 @@ export class Point {
    */
   toFabricPoint(): fabric.Point {
     if (this.x == undefined || this.y == undefined) {
-      throw new Error('x or y is undefined. Cannot convert to fabric.Point')
+      console.warn('x or y is undefined. Cannot convert to fabric.Point. Using 0 instead')
     }
-    return new fabric.Point(this.x, this.y)
+    return new fabric.Point(this.x || 0, this.y || 0)
   }
 
   /**

@@ -7,6 +7,7 @@ import FileUploadButton from './components/FileUploadButton.vue';
 import { z } from 'zod';
 import { Point } from './utils/Point';
 import ParsedInput from './components/ParsedInput.vue';
+import DeleteButton from '@/components/DeleteButton.vue';
 
 
 
@@ -114,8 +115,9 @@ onMounted(() => {
         <ParsedInput class="w-20 ml-4 rounded-md border-l-[0.5px]" placeholder="y" v-model="mainStore.indentationY"
           :zod-validator="z.preprocess((v) => (v as string).replace(/^(\d+),(\d*)$/, '$1.$2'), z.coerce.number().nullable())" />
       </div>
-      <button class="w-full bg-primary text-white rounded-md p-2 m-4 mb-1" @click="mainStore.addPlane()">Dielen
+      <button class="w-full bg-primary text-white rounded-md p-2 my-4 mb-1" @click="mainStore.addPlane()">Dielen
         berechnen</button>
+      <DeleteButton validation-string="Loeschen" @click="() => mainStore.$reset()">Alles zurücksetzen</DeleteButton>
     </div>
   </main>
 </template>

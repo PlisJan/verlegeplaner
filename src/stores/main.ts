@@ -110,6 +110,16 @@ export const useMainStore = defineStore(
       )
     })
 
+    function $reset() {
+      points.value = [new Point(undefined, undefined)]
+      pg.value = null
+      elementScale.value = 1
+      planeDimensions.value = [null, null]
+      indentation.value = [0]
+      indentationY.value = 0
+      updateCanvas()
+    }
+
     return {
       points,
       setPoint,
@@ -122,6 +132,7 @@ export const useMainStore = defineStore(
       addPlane,
       indentation,
       indentationY,
+      $reset,
     }
   },
   {
