@@ -134,9 +134,12 @@ function drawPlane(
   })
 
   grp.scale(elementScale)
+  const polyVerticies = getPolyVertices(polygon)
+  const minX = Math.min(...polyVerticies.map((v) => v.x))
+  const minY = Math.max(...polyVerticies.map((v) => v.y))
 
   grp.setPositionByOrigin(
-    getPolyVertices(polygon)[0].add(
+    new fabric.Point(minX, minY).add(
       new fabric.Point(position).multiply({ x: elementScale, y: -elementScale }),
     ),
     'left',
