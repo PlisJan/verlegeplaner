@@ -1,6 +1,7 @@
 import * as fabric from 'fabric'
 import { getPolyVertices, pointInPolygon, segmentCrossesBoundary } from './Polygon'
 import { Segment } from './Segment'
+import { useMainStore } from '@/stores/main'
 
 export function createPlane(
   polygon: fabric.Polygon,
@@ -25,7 +26,7 @@ export function createPlane(
     // textColor = 'red'
     return []
   }
-
+  const mainStore = useMainStore()
   const intersectionPointsTop = segmentCrossesBoundary(
     polygon,
     new Segment(posPoint.add({ x: 0, y: height }), posPoint.add({ x: width, y: height })),
@@ -67,6 +68,24 @@ export function createPlane(
 
     if (distance != Number.NEGATIVE_INFINITY) {
       if (innerSide == 'left') {
+        mainStore.planesList.push([
+          {
+            x: posPoint.x,
+            y: posPoint.y,
+          },
+          {
+            x: posPoint.x + round(distance, 5),
+            y: posPoint.y,
+          },
+          {
+            x: posPoint.x + round(distance, 5),
+            y: posPoint.y + height,
+          },
+          {
+            x: posPoint.x,
+            y: posPoint.y + height,
+          },
+        ])
         return [
           drawPlane(
             polygon,
@@ -78,7 +97,24 @@ export function createPlane(
           ),
         ]
       }
-
+      mainStore.planesList.push([
+        {
+          x: posPoint.add({ x: distance, y: 0 }).x,
+          y: posPoint.add({ x: distance, y: 0 }).y,
+        },
+        {
+          x: posPoint.add({ x: distance, y: 0 }).x + round(width - distance, 5),
+          y: posPoint.add({ x: distance, y: 0 }).y,
+        },
+        {
+          x: posPoint.add({ x: distance, y: 0 }).x + round(width - distance, 5),
+          y: posPoint.add({ x: distance, y: 0 }).y + height,
+        },
+        {
+          x: posPoint.add({ x: distance, y: 0 }).x,
+          y: posPoint.add({ x: distance, y: 0 }).y + height,
+        },
+      ])
       return [
         drawPlane(
           polygon,
@@ -92,6 +128,24 @@ export function createPlane(
     }
   }
 
+  mainStore.planesList.push([
+    {
+      x: position.x,
+      y: position.y,
+    },
+    {
+      x: position.x + width,
+      y: position.y,
+    },
+    {
+      x: position.x + width,
+      y: position.y + height,
+    },
+    {
+      x: position.x,
+      y: position.y + height,
+    },
+  ])
   const grp = drawPlane(polygon, position, width, height, elementScale, textColor)
   return [grp]
 }

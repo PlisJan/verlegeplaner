@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@tarikjabiri/dxf": "^2.8.9",
     "fabric": "^6.5.4",
     "pinia": "^2.3.0",
     "pinia-plugin-persistedstate": "^4.2.0",

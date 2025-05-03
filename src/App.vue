@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { Point } from './utils/Point';
 import ParsedInput from './components/ParsedInput.vue';
 import DeleteButton from '@/components/DeleteButton.vue';
+import { DxfWriter, point3d, Units } from "@tarikjabiri/dxf";
 
 
 
@@ -17,6 +18,47 @@ function downloadPoints() {
   a.href = dt
   a.download = 'verlegeplaner-points.json'
   a.click()
+}
+
+
+
+function downloadDFX() {
+
+  const dxf = new DxfWriter();
+  dxf.setUnits(Units.Centimeters);
+
+  const roomPoints = mainStore.points.map(p => ({ point: point3d(p.x, p.y) }))
+  roomPoints.pop()
+  roomPoints.push(roomPoints[0])
+
+  dxf.addPolyline3D(roomPoints);
+
+  const a = document.createElement('a')
+  const dt = 'data:image/x-dxf;charset=utf-8,' + encodeURIComponent(dxf.stringify())
+  a.href = dt
+  a.download = 'verlegeplaner-room.dxf'
+  a.click()
+
+
+  const dxf1 = new DxfWriter();
+  dxf1.setUnits(Units.Centimeters);
+
+  mainStore.planesList.forEach(plane => {
+    dxf1.addPolyline3D(
+      [{ point: point3d(plane[0].x, plane[0].y, 0) },
+      { point: point3d(plane[1].x, plane[1].y, 0) },
+      { point: point3d(plane[2].x, plane[2].y, 0) },
+      { point: point3d(plane[3].x, plane[3].y, 0) },
+      { point: point3d(plane[0].x, plane[0].y, 0) }])
+  })
+
+
+
+  const a1 = document.createElement('a')
+  const dt1 = 'data:image/x-dxf;charset=utf-8,' + encodeURIComponent(dxf1.stringify())
+  a1.href = dt1
+  a1.download = 'verlegeplaner-tiles.dxf'
+  a1.click()
 }
 
 function downloadImage() {
@@ -117,6 +159,8 @@ onMounted(() => {
       </div>
       <button class="w-full bg-primary text-white rounded-md p-2 my-4 mb-1" @click="mainStore.addPlane()">Dielen
         berechnen</button>
+      <button class="w-full bg-blue-600 text-white rounded-md p-2 my-4 mb-1" @click="downloadDFX">DXF File
+        Herunterladen</button>
       <DeleteButton validation-string="Loeschen" @click="() => mainStore.$reset()">Alles zurücksetzen</DeleteButton>
     </div>
   </main>

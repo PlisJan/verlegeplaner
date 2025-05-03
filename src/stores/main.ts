@@ -16,6 +16,14 @@ export const useMainStore = defineStore(
     const planeDimensions = ref<[number | null, number | null]>([null, null])
     const indentation = ref<number[]>([0])
     const indentationY = ref<number>(0)
+    const planesList = ref<
+      [
+        { x: number; y: number },
+        { x: number; y: number },
+        { x: number; y: number },
+        { x: number; y: number },
+      ][]
+    >([])
 
     function insertPoint(index: number) {
       points.value.splice(index, 0, new Point(0, 0))
@@ -79,21 +87,22 @@ export const useMainStore = defineStore(
       )
         return
       canvas.value?.clear()
+      planesList.value = []
       updateCanvas()
       for (let i = 0; i < pg.value.height / planeDimensions.value[1]; i++) {
         for (let j = 0; j < pg.value.width / planeDimensions.value[0] + 2; j++) {
+          const planePos = {
+            x: planeDimensions.value[0] * (j - 1) + indentation.value[i % indentation.value.length],
+            y: planeDimensions.value[1] * i + indentationY.value,
+          }
           const plane = createPlane(
             pg.value as fabric.Polygon,
-            {
-              x:
-                planeDimensions.value[0] * (j - 1) +
-                indentation.value[i % indentation.value.length],
-              y: planeDimensions.value[1] * i + indentationY.value,
-            },
+            planePos,
             planeDimensions.value[0],
             planeDimensions.value[1],
             elementScale.value,
           )
+
           plane.forEach((p) => {
             canvas.value?.add(p)
             canvas.value?.sendObjectToBack(p)
@@ -132,6 +141,7 @@ export const useMainStore = defineStore(
       addPlane,
       indentation,
       indentationY,
+      planesList,
       $reset,
     }
   },
